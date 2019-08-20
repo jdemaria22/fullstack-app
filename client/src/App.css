@@ -1,0 +1,13 @@
+.mgc{
+    margin: 1%;
+}
+.modal {
+    opacity: 1;
+    transition: opacity 300ms ease-in-out;
+  }
+.left{
+    text-align: end;
+}
+.modal-background {
+    background-color: hsla(0, 0%, 4%, 0.2);
+}

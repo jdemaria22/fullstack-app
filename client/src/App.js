@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import axios from 'axios';
 import "react-bulma-components/full";
 import './App.css';
@@ -147,7 +147,7 @@ class App extends React.Component {
                             closeModal={this.toggleModal} 
                             modalState={this.state.modalState}
                             id_agent={dat._id}
-                            title="Confirmacion"> ¿Desea eliminar este agente 
+                            title="Confirmacion   "> ¿Desea eliminar este agente 
                           </Modal>
                          
                           </div>

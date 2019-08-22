@@ -2,51 +2,8 @@
 import axios from 'axios';
 import "react-bulma-components/full";
 import './App.css';
-import PropTypes from 'prop-types';
-
-
-const Modal = ({ children, closeModal, modalState, title , id_agent}) => {
-  
-  if(!modalState) {
-    return null;
-  }
-  
-  return(
-    <React.Fragment>
-      <div className="modal is-active">
-        <div className="modal-background" onClick={closeModal} />
-        <div className="modal-card">
-          <header className="modal-card-head">
-            <p className="modal-card-title">{title}</p>
-            <button className="delete" onClick={closeModal} />
-          </header>
-          <section className="modal-card-body">
-            <div className="content">
-              {children + id_agent + '?'}
-            </div>
-          </section>
-          <footer className="modal-card-foot">
-            <div className="column is-half">
-              <a className="button" onClick={closeModal}>Cancel</a>
-            </div>
-            <div className="column is-half left">
-              <a className="button is-success" onClick={closeModal}>Aceptar</a>  
-            </div>
-          </footer>
-        </div>
-      </div>
-    </React.Fragment>
-
-  );
-}
-
-Modal.propTypes = {
-  closeModal: PropTypes.func.isRequired,
-  title: PropTypes.string.isRequired,
-  modalState: PropTypes.bool.isRequired,
-  id_agent: PropTypes.string.isRequired
-}
-
+import Modal from './components/modal.js';
+import ModaEdit from './components/modalEdit.js';
 class App extends React.Component {
 
   constructor(props) {
@@ -54,27 +11,30 @@ class App extends React.Component {
     this.state = {
         agentes : [],
         intervalIsSet: false,
-        modalState: false
+        modalState: false,
+        modalStateEdit: false,
+        id_agent: 0,
+        name_agent: '',
+        age_agent: 0,
+        name: '',
+        age: 0
     }
     this.toggleModal = this.toggleModal.bind(this);
+    this.toggleModalEdit = this.toggleModalEdit.bind(this);
+    this.toggleModalAndDelete = this.toggleModalAndDelete.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+    this.ToggleModalAndUpdate = this.ToggleModalAndUpdate.bind(this);
   }
-   
+  
+  handleChange(event) {
+    this.setState({[event.target.name] : event.target.value});
+  }
+  
   componentDidMount(){
     this.getDatos();
-    if (!this.state.intervalIsSet) {
-      let interval = setInterval(this.getDatos, 2000);
-      this.setState({ intervalIsSet: interval });
-    }
   }
 
-  componentWillUnmount() {
-    if (this.state.intervalIsSet) {
-      clearInterval(this.state.intervalIsSet);
-      this.setState({ intervalIsSet: null });
-    }
-  }
-
-  getDatos =  () => {
+  getDatos = () => {
     axios.get('http://localhost:3001/api/agentes')
     .then(response =>{
       this.setState({agentes: response.data.data});
@@ -83,7 +43,20 @@ class App extends React.Component {
       console.log(e);
     })
   }
-  
+
+  crearAgente = ()=>{
+    axios.post('http://localhost:3001/api/newData', {
+      name: this.state.name,
+      age: this.state.age
+    }).then(res =>{
+      console.log(res);
+      this.getDatos();
+    })
+    .catch(e =>{
+      console.log(e);
+    })
+  }
+
   borrarAgente = (idAgent) => {
     axios.delete('http://localhost:3001/api/delete/'+ idAgent, {
       data: {
@@ -91,35 +64,99 @@ class App extends React.Component {
       },})
       .then(response => {
         console.log(response);
+        this.getDatos();
       })
       .catch(e => {
         console.log(e);
       })
   }
 
-  toggleModal(id) {    
-    
-    if(id != 0){
-      console.log(id);
-      Modal.id_agent = id;
-      this.setState((prev, props) => {
-        const newState = !prev.modalState;
-        
-        return { modalState: newState };
-      }); 
-    } 
-    else{
-      this.setState((prev, props) => {
-        const newState = !prev.modalState;
-        
-        return { modalState: newState };
-      }); 
-    }      
+    modificarAgente = (idAgent) => {
+      axios.put('http://localhost:3001/api/edit/'+idAgent, {
+        name: this.state.name_agent,
+        age: this.state.age_agent
+      }).then(res => {
+        console.log(res);
+        this.getDatos();
+      }).catch(e=> {
+        console.log(e);
+      }) 
+    }
+
+  setearStates = (id, name , age) => {
+    this.setState({ id_agent: id});
+    this.setState({ name_agent: name});
+    this.setState({ age_agent: age});
   }
+
+  async toggleModal(id, name , age) {       
+    if(id){  
+      await this.setearStates(id,name,age );
+      this.setState((prev, props) => {
+        const newState = !prev.modalState;
+        return { modalState: newState };
+      }); 
+    }  
+  }
+
+  async toggleModalEdit(id, name , age) {       
+    if(id){  
+      await this.setearStates(id,name,age );
+      this.setState((prev, props) => {
+        const newState = !prev.modalStateEdit;
+        return { modalStateEdit: newState };
+      }); 
+    }  
+  }
+
+  async ToggleModalAndUpdate(){
+    if(this.state.id_agent){
+      this.modificarAgente(this.state.id_agent);
+      await this.getDatos();
+      this.setState((prev, props) => {
+        const newState = !prev.modalStateEdit;
+        return { modalStateEdit: newState };
+      }); 
+    }
+  }
+
+  async toggleModalAndDelete () {
+    console.log('entra')
+    if(this.state.id_agent){
+      this.borrarAgente(this.state.id_agent);
+      await this.getDatos();      
+      setTimeout(this.setState((prev, props) => {
+        const newState = !prev.modalState;
+        return { modalState: newState };
+      }) , 1000); 
+      
+    }
+    else{
+      alert('Error al borrar id de agente :' + this.state.id_agent);
+    }
+  }
+
   render(){
     const { agentes } = this.state;
     return (
       <div className="contenido">
+        <div className="Add">
+              <input
+                name="name"
+                type="text"
+                placeholder="Ingrese nombre"
+                value = {this.state.name}
+                onChange = {this.handleChange}
+              />
+              <input
+                name="age"
+                type="text"
+                placeholder="Ingrese edad"
+                value = {this.state.age}
+                onChange = {this.handleChange}
+              />
+              <a class="button" onClick={() => this.crearAgente()}>Agregar</a>
+            </div>
         <div className="columns">
           <div className="column is-one-third"></div>
           <div className="column is-one-third mgc">     
@@ -127,6 +164,24 @@ class App extends React.Component {
                   ? 'NO DB ENTRIES YET'
                   : agentes.map((dat) => (
                       <div key={dat._id}>
+                        <ModaEdit
+                        closeModal={this.toggleModalEdit}
+                        modalStateEdit={this.state.modalStateEdit}
+                        id_agent={this.state.id_agent}
+                        name={this.state.name_agent}
+                        age={this.state.age_agent}
+                        updateAgent={this.ToggleModalAndUpdate}
+                        handleChange={this.handleChange}
+                        title="Edit"
+                        >
+                        </ModaEdit>
+                        <Modal 
+                            closeModal={this.toggleModal} 
+                            modalState={this.state.modalState}
+                            id_agent={this.state.id_agent}
+                            deleteAgent={this.toggleModalAndDelete}
+                            title="Confirmacion   "> ¿Desea eliminar este agente 
+                        </Modal>
                         <div className="card mgc" id={dat._id} >
                           <div className="card-content">
                             <p className="title">
@@ -139,18 +194,9 @@ class App extends React.Component {
                           </div>
                           <footer className="card-footer">
                             <a href='#' className="card-footer-item">More info</a>
-                            <a onClick={() => this.toggleModal()} className="card-footer-item">Edit</a>
-                            <a onClick={() => this.toggleModal(dat._id)} className="card-footer-item">Delete</a>
+                            <a onClick={() => this.toggleModalEdit(dat._id, dat.name, dat.age)} className="card-footer-item">Edit</a>
+                            <a onClick={() => this.toggleModal(dat._id, dat.name, dat.age)} className="card-footer-item">Delete</a>
                           </footer>
-                          <div>
-                          <Modal 
-                            closeModal={this.toggleModal} 
-                            modalState={this.state.modalState}
-                            id_agent={dat._id}
-                            title="Confirmacion   "> ¿Desea eliminar este agente 
-                          </Modal>
-                         
-                          </div>
                         </div>
                       </div>
                     ))}

@@ -30,23 +30,22 @@ router.get('/agentes', (req, res) => {
   });
 });
 
-router.post('/agentes/create', function(req, res, next){
-  var Data = new Agente(req.body);
-  Data.save(function(err, agenteGuardado){
-    if(err){
-      return next(err);
-    }
-    res.json({ok: true, agente: agenteGuardado});
+router.post('/newData', function(req, res, next){
+  console.log(req.body);
+  let data = new Data(req.body);
+  data.save((err, agenteGuardado)=>{
+    if (err) return next(err);
+    res.json({ok:true, data:agenteGuardado});
   });
 });
 
-router.put('/:id', function(req, res, next){
+router.put('/edit/:id', function(req, res, next){
   var id = req.params.id;
-  Data.update({_id: id}, req.body, function(err, agente){
+  Data.findOneAndUpdate({_id: id}, req.body, function(err, data){
     if(err){
       return next(err);
     }
-    res.json({ok: true, agente: agente});
+    res.json({ok: true, agente: data});
   });
 });
 

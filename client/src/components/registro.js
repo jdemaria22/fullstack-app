@@ -1,6 +1,7 @@
 import React from 'react';
 import "react-bulma-components/full";
 import '../App.css';
+var userControlador =  require('../controladores/registroControlador.js');
 export const Registro = () => {
     return (
         <div className="registro">
@@ -80,7 +81,7 @@ export const Registro = () => {
 
             <div className="field is-grouped">
                 <div className="control">
-                    <button className="button is-link">Submit</button>
+                    <button className="button is-link" onClick={userControlador.sayHelloInSpanish}>Submit</button>
                 </div>
                 <div className="control">
                     <button className="button is-text">Cancel</button>

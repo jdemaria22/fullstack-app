@@ -7,8 +7,8 @@ import ModaEdit from './components/modalEdit.js';
 import {BrowserRouter as Router, Route, Link} from 'react-router-dom';
 import Login from './components/login.js';
 import {Registro} from './components/registro.js';
-class App extends React.Component {
 
+class App extends React.Component {
   constructor(props) {
     super(props);  
     this.state = {
@@ -23,7 +23,7 @@ class App extends React.Component {
         age: 0,
         email: '',
         pwd: '',
-        bool: true
+        bool: null
     }
     this.toggleModal = this.toggleModal.bind(this);
     this.toggleModalEdit = this.toggleModalEdit.bind(this);
@@ -79,17 +79,30 @@ class App extends React.Component {
       })
   }
 
-    modificarAgente = (idAgent) => {
-      axios.put('http://localhost:3001/api/edit/'+idAgent, {
-        name: this.state.name_agent,
-        age: this.state.age_agent
-      }).then(res => {
-        console.log(res);
-        this.getDatos();
-      }).catch(e=> {
-        console.log(e);
-      }) 
-    }
+  modificarAgente = (idAgent) => {
+    axios.put('http://localhost:3001/api/edit/'+idAgent, {
+      name: this.state.name_agent,
+      age: this.state.age_agent
+    }).then(res => {
+      console.log(res);
+      this.getDatos();
+    }).catch(e => {
+      console.log(e);
+    }) 
+  }
+
+  validarUser = () => {
+    axios.post('http://localhost:3001/api/validUser/', {
+        email: this.state.email,
+        pwd: this.state.pwd
+      })
+      .then(response =>{
+      console.log(response)
+    })
+    .catch(e =>{
+      console.log(e);
+    })
+  }
 
   setearStates = (id, name , age) => {
     this.setState({ id_agent: id});
@@ -144,35 +157,24 @@ class App extends React.Component {
     }
   }
 
-  validarUser = () => {
-      axios.get('http://localhost:3001/api/validUser/', {
-          email: this.state.email,
-          pwd: this.state.pwd
-        })
-        .then(response =>{
-        console.log(response)
-      })
-      .catch(e =>{
-        console.log(e);
-      })
-  }
 //COMPONENTES//
   login() {
     const f = () =>{
       console.log(this.state.email);
       console.log(this.state.pwd);
-      const header = {
-        'Content-Type': 'application/json',
-      }
-      const data = {
-          "email": this.state.email,
-          "pwd": this.state.pwd
-      }
-        axios.get('http://localhost:3001/api/validUser/', {data:JSON.stringify(data)}, {header: header})
+      //valido el usuarios//
+      axios.post('http://localhost:3001/api/validUser/', {
+          email: this.state.email,
+          pwd: this.state.pwd
+        })
         .then(response =>{
         console.log(response.data.cantidad);
         if(response.data.cantidad > 0){
-          window.location.replace("http://localhost:3000/user");
+          this.setState({ bool: true});
+          window.location.replace("http://localhost:3000/users");
+        }
+        else{
+          this.setState({ bool: false});
         }
       })
       .catch(e =>{
@@ -190,9 +192,9 @@ class App extends React.Component {
       </Login>
     )
   }
-  users(bool) {
+  users() {
     const { agentes } = this.state;
-    if(!bool){
+    if(this.state.bool === false){
       return null;
     }
     return (
@@ -269,7 +271,7 @@ class App extends React.Component {
     return (
       <Router>
         <Route exact path="/" component={this.login} />  
-        <Route path="/users" component={this.users(this.state.bool)}/>
+        <Route path="/users" component={this.users}/>
         <Route path="/registrarse" component={Registro}/>
       </Router>
     );

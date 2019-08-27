@@ -70,10 +70,10 @@ router.post('/newUser', function(req, res, next){
   });
 });
 
-router.get('/validUser', function(req, res, next){
+router.post('/validUser', function(req, res, next){
   let email = req.body.email;
   let pwd = req.body.pwd;
-  console.log(req.body);
+  console.log(req.body.email);
   User.countDocuments({email: email, pwd: pwd}, (err, count) =>{
     if (err) return next(err);
     console.log(count);

@@ -2,10 +2,9 @@ import React from 'react';
 import "react-bulma-components/full";
 import PropTypes from 'prop-types';
 import {BrowserRouter as Router, Route, Link} from 'react-router-dom';
+import * as loginControlador from '../controladores/loginControlador';
 const Login = ({ email, estado, pwd , login ,handleChange}) => {
-    if(!estado) {
-        return null;
-    }    
+
     return (
         <div>   
             <section className="hero is-fullheight is-medium is-primary is-bold">
@@ -32,15 +31,15 @@ const Login = ({ email, estado, pwd , login ,handleChange}) => {
                                             </label>
                                         </p>
                                         <p className="control">
-                                            <button className="button is-primary is-medium is-fullwidth">
+                                            <button className="button is-primary is-medium is-fullwidth" onClick={login}>
                                             <i className="fa fa-user"></i>
-                                                <Link to="/users">Login</Link>
+                                                Login
                                             </button>
                                         </p>
                                         <p className="control">
-                                            <button className="button is-danger is-medium is-fullwidth" onClick={login}>
+                                            <button className="button is-danger is-medium is-fullwidth" onClick={() => loginControlador.redirection()}>
                                             <i className="fa fa-user"></i>
-                                                
+                                                Registrarse
                                             </button>
                                         </p>
                                     </div>

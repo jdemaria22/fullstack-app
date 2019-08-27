@@ -1,12 +1,11 @@
-﻿import React from 'react';
+import React from 'react';
 import axios from 'axios';
 import "react-bulma-components/full";
 import './App.css';
 import Modal from './components/modal.js';
 import ModaEdit from './components/modalEdit.js';
 import {BrowserRouter as Router, Route, Link} from 'react-router-dom';
-import Login from './components/login.js';
-import {Registro} from './components/registro.js';
+import {Login} from './components/login.js';
 class App extends React.Component {
 
   constructor(props) {
@@ -20,18 +19,13 @@ class App extends React.Component {
         name_agent: '',
         age_agent: 0,
         name: '',
-        age: 0,
-        email: '',
-        pwd: '',
-        bool: true
+        age: 0
     }
     this.toggleModal = this.toggleModal.bind(this);
     this.toggleModalEdit = this.toggleModalEdit.bind(this);
     this.toggleModalAndDelete = this.toggleModalAndDelete.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.ToggleModalAndUpdate = this.ToggleModalAndUpdate.bind(this);
-    this.users = this.users.bind(this);
-    this.login = this.login.bind(this);
   }
   
   handleChange(event) {
@@ -144,57 +138,8 @@ class App extends React.Component {
     }
   }
 
-  validarUser = () => {
-      axios.get('http://localhost:3001/api/validUser/', {
-          email: this.state.email,
-          pwd: this.state.pwd
-        })
-        .then(response =>{
-        console.log(response)
-      })
-      .catch(e =>{
-        console.log(e);
-      })
-  }
-//COMPONENTES//
-  login() {
-    const f = () =>{
-      console.log(this.state.email);
-      console.log(this.state.pwd);
-      const header = {
-        'Content-Type': 'application/json',
-      }
-      const data = {
-          "email": this.state.email,
-          "pwd": this.state.pwd
-      }
-        axios.get('http://localhost:3001/api/validUser/', {data:JSON.stringify(data)}, {header: header})
-        .then(response =>{
-        console.log(response.data.cantidad);
-        if(response.data.cantidad > 0){
-          window.location.replace("http://localhost:3000/user");
-        }
-      })
-      .catch(e =>{
-        console.log(e);
-      })
-    }
-    return (
-      <Login
-      email={this.state.email}
-      estado={this.state.bool} 
-      pwd={this.state.pwd}
-      handleChange={this.handleChange}
-      login={f}
-      >
-      </Login>
-    )
-  }
-  users(bool) {
+  render(){
     const { agentes } = this.state;
-    if(!bool){
-      return null;
-    }
     return (
       <div className="contenido">
         <div className="Add">
@@ -212,7 +157,7 @@ class App extends React.Component {
                 value = {this.state.age}
                 onChange = {this.handleChange}
               />
-              <a className="button" onClick={() => this.crearAgente()}>Agregar</a>
+              <a class="button" onClick={() => this.crearAgente()}>Agregar</a>
             </div>
         <div className="columns">
           <div className="column is-one-third"></div>
@@ -260,18 +205,7 @@ class App extends React.Component {
           </div> 
           <div className="column"></div>
         </div>
-    </div>    
-    )
-  }
-
-  render(){
-    
-    return (
-      <Router>
-        <Route exact path="/" component={this.login} />  
-        <Route path="/users" component={this.users(this.state.bool)}/>
-        <Route path="/registrarse" component={Registro}/>
-      </Router>
+      </div>  
     );
   }
 }

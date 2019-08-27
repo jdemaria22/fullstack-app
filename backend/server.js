@@ -4,7 +4,7 @@ var cors = require('cors');
 const bodyParser = require('body-parser');
 const logger = require('morgan');
 const Data = require('./data');
-
+const User = require('./user');
 
 const API_PORT = 3001;
 const app = express();
@@ -59,6 +59,27 @@ router.delete('/delete/:id', function(req, res){
     res.json({ok: true, result: result, params: req.params});
   });
 });
+
+//API usuarios//
+router.post('/newUser', function(req, res, next){
+  console.log(req.body);
+  let user = new User(req.body);
+  user.save((err, userGuardado)=>{
+    if (err) return next(err);
+    res.json({ok:true, data:userGuardado});
+  });
+});
+
+router.get('/validUser', function(req, res, next){
+  let email = req.body.email;
+  let pwd = req.body.pwd;
+  console.log(req.body);
+  User.countDocuments({email: email, pwd: pwd}, (err, count) =>{
+    if (err) return next(err);
+    console.log(count);
+    res.json({ok:true, cantidad: count});
+  })   
+})
 
 // append /api for our http requests
 app.use('/api', router);
